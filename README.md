@@ -1,8 +1,7 @@
-# 🌾 African Crop Yield Prediction — Linear Regression
+# African Crop Yield Prediction — Linear Regression
 
 ## Mission
-To support food security in Sub-Saharan Africa by building a machine learning model that predicts crop yields from climatic and agricultural inputs across 18 African nations.
-Accurate yield forecasting helps governments, NGOs, and smallholder farmers allocate resources efficiently, reduce hunger, and make data-driven planting decisions.
+My mission is to transform agriculture through innovation, sustainability, and education.I aim to empower farmers and young people with modern skills and technology to improve productivity and livelihoods. I am committed to advancing food security and environmentally responsible practices, My goal is to build resilient communities and a sustainable agricultural future by especially promoting hydroponics farming in the communities.
 
 ## Dataset
 **Source:** [Kaggle — Crop Yield Prediction Dataset](https://www.kaggle.com/datasets/patelris/crop-yield-prediction-dataset) (filtered to African countries + enriched with World Bank indicators)  
@@ -33,19 +32,6 @@ linear_regression_model/
 
 ---
 
-## Models Implemented
-
-| Model | Library | Notes |
-|---|---|---|
-| Linear Regression | `sklearn.linear_model.LinearRegression` | Closed-form OLS solution |
-| Gradient Descent | `sklearn.linear_model.SGDRegressor` | Loss curve plotted over 100 epochs |
-| Decision Tree | `sklearn.tree.DecisionTreeRegressor` | max_depth=10 |
-| Random Forest | `sklearn.ensemble.RandomForestRegressor` | 100 estimators, best performer |
-
-The model with the **lowest Test MSE** is automatically selected and saved to `saved_models/best_model.pkl`.
-
----
-
 ## Key Visualizations
 
 1. **Missing value analysis** — count and % chart per feature
@@ -69,10 +55,3 @@ pip install numpy pandas matplotlib seaborn scikit-learn joblib notebook
 # Run the notebook
 jupyter notebook summative/linear_regression/multivariate.ipynb
 ```
-
-> **Note:** Download `yield_df.csv` from the [Kaggle link](https://www.kaggle.com/datasets/patelris/crop-yield-prediction-dataset) and place it in `summative/linear_regression/` before running.  
-> If the file is not found, the notebook auto-generates a realistic Africa-only synthetic dataset so all cells will still run and produce outputs.
-
----
-
-*Assignment: Linear Regression Task | [Your Name] | [Your University]*
