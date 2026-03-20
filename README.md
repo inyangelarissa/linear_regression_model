@@ -21,9 +21,9 @@ linear_regression_model/
 │   ├── linear_regression/
 │   │   └── multivariate.ipynb
         ├── saved_models/                  
-│           ├── best_model.pkl             
-│           ├── scaler.pkl                 
-│           └── feature_names.pkl           
+             ├── best_model.pkl             
+             ├── scaler.pkl                 
+             └── feature_names.pkl           
 │   ├── API/                       
 │   └── FlutterApp/                      
 │
