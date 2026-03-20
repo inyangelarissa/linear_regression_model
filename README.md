@@ -4,10 +4,11 @@
 My mission is to transform agriculture through innovation, sustainability, and education.I aim to empower farmers and young people with modern skills and technology to improve productivity and livelihoods. I am committed to advancing food security and environmentally responsible practices, My goal is to build resilient communities and a sustainable agricultural future by especially promoting hydroponics farming in the communities.
 
 ## Dataset
-**Source:** [Kaggle — Crop Yield Prediction Dataset](https://www.kaggle.com/datasets/patelris/crop-yield-prediction-dataset) (filtered to African countries + enriched with World Bank indicators)  
+**Source:** [Kaggle — Crop Yield Prediction Dataset](https://www.kaggle.com/datasets/patelris/crop-yield-prediction-dataset) 
+
+**Dataset**: African Crop Yield Dataset (World Bank Open Data)
+
 **Description:** Agricultural and climatic records across 18 African countries (Rwanda, Kenya, Nigeria, Ghana, Ethiopia, Mali, Niger, and more), covering 10 African crop types (Maize, Cassava, Sorghum, Millet, Rice, Beans, Groundnuts, Sweet Potatoes, Yams, Plantains) from 1990 to 2013.  
-**Size:** 43,200+ rows × 15 columns — features include annual rainfall, average temperature, humidity, fertilizer use, pesticide use, soil quality index, irrigation coverage, GDP per capita, rural population %, CO₂ emissions, and arable land %.  
-**Target variable:** `hg/ha_yield` — crop yield in hectograms per hectare.
 
 ---
 
