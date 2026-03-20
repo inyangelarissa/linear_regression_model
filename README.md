@@ -19,14 +19,13 @@ linear_regression_model/
 │
 ├── summative/
 │   ├── linear_regression/
-│   │   └── multivariate.ipynb    
+│   │   └── multivariate.ipynb
+        ├── saved_models/                  
+│           ├── best_model.pkl             
+│           ├── scaler.pkl                 
+│           └── feature_names.pkl           
 │   ├── API/                       
-│   └── FlutterApp/                
-│
-├── saved_models/                  
-│   ├── best_model.pkl             
-│   ├── scaler.pkl                 
-│   └── feature_names.pkl        
+│   └── FlutterApp/                      
 │
 └── README.md
 ```
