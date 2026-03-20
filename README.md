@@ -19,14 +19,14 @@ linear_regression_model/
 │
 ├── summative/
 │   ├── linear_regression/
-│   │   └── multivariate.ipynb     ← Main notebook
-│   ├── API/                       ← (Leave empty for now)
-│   └── FlutterApp/                ← (Leave empty for now)
+│   │   └── multivariate.ipynb    
+│   ├── API/                       
+│   └── FlutterApp/                
 │
-├── saved_models/                  ← Auto-generated when notebook is run
-│   ├── best_model.pkl             ← Best performing model
-│   ├── scaler.pkl                 ← Fitted StandardScaler
-│   └── feature_names.pkl         ← Feature list for prediction
+├── saved_models/                  
+│   ├── best_model.pkl             
+│   ├── scaler.pkl                 
+│   └── feature_names.pkl        
 │
 └── README.md
 ```
