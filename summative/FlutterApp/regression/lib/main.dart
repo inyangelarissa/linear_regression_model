@@ -56,7 +56,7 @@ class CropYieldApp extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // API base URL — replace with your Render URL when deployed
 // ─────────────────────────────────────────────────────────────────────────────
-const String _apiBaseUrl = 'https://your-api.onrender.com';
+const String _apiBaseUrl = 'https://linearregressionmodel-production-548a.up.railway.app/docs';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data constants
