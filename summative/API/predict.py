@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 import numpy as np
 import pandas as pd
 import joblib
@@ -7,10 +8,46 @@ import joblib
 # Paths — works whether called from repo root or from summative/linear_regression/
 # ─────────────────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR_CANDIDATES = [
-    os.path.join(BASE_DIR, "saved_models"),
-    os.path.normpath(os.path.join(BASE_DIR, "..", "linear_regression", "saved_models")),
-]
+MODEL_DIR_ENV_VARS = ("MODEL_DIR", "MODEL_ARTIFACT_DIR")
+ARTIFACT_FILENAMES = ("best_model.pkl", "scaler.pkl", "feature_names.pkl")
+
+
+class ModelArtifactsError(RuntimeError):
+    """Raised when model artifacts cannot be found or loaded."""
+
+
+def _candidate_model_dirs() -> list[str]:
+    candidates = []
+
+    for env_var in MODEL_DIR_ENV_VARS:
+        env_value = os.getenv(env_var)
+        if env_value:
+            candidates.append(env_value)
+
+    candidates.extend([
+        os.path.join(BASE_DIR, "saved_models"),
+        BASE_DIR,
+        os.path.normpath(os.path.join(BASE_DIR, "..", "linear_regression", "saved_models")),
+        os.path.join(os.getcwd(), "saved_models"),
+        os.getcwd(),
+    ])
+
+    unique_dirs = []
+    seen = set()
+    for candidate in candidates:
+        resolved = os.path.abspath(candidate)
+        if resolved not in seen:
+            seen.add(resolved)
+            unique_dirs.append(resolved)
+
+    return unique_dirs
+
+
+def _artifact_paths(models_dir: str) -> dict[str, str]:
+    return {
+        artifact_name: os.path.join(models_dir, artifact_name)
+        for artifact_name in ARTIFACT_FILENAMES
+    }
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Label encoding maps — must match the alphabetical order LabelEncoder used
@@ -54,23 +91,72 @@ CROP_ENCODING = {
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper — load artifacts once
 # ─────────────────────────────────────────────────────────────────────────────
+# Cache the loaded model so the API does not hit the filesystem on every request.
+@lru_cache(maxsize=1)
 def _load_artifacts():
-    for models_dir in MODEL_DIR_CANDIDATES:
-        model_path = os.path.join(models_dir, "best_model.pkl")
-        scaler_path = os.path.join(models_dir, "scaler.pkl")
-        feats_path = os.path.join(models_dir, "feature_names.pkl")
-        if all(os.path.exists(path) for path in [model_path, scaler_path, feats_path]):
-            model = joblib.load(model_path)
-            scaler = joblib.load(scaler_path)
-            features = joblib.load(feats_path)
-            return model, scaler, features
+    searched_dirs = []
+    load_errors = []
 
-    searched_dirs = "\n".join(f"  - {path}" for path in MODEL_DIR_CANDIDATES)
-    raise FileNotFoundError(
-        "\n  Model files were not found."
-        f"\n  Searched:\n{searched_dirs}"
-        "\n  Please run multivariate.ipynb first to train and save the model."
-    )
+    for models_dir in _candidate_model_dirs():
+        searched_dirs.append(models_dir)
+        paths = _artifact_paths(models_dir)
+        missing_files = [
+            filename
+            for filename, filepath in paths.items()
+            if not os.path.exists(filepath)
+        ]
+
+        if missing_files:
+            continue
+
+        try:
+            model = joblib.load(paths["best_model.pkl"])
+            scaler = joblib.load(paths["scaler.pkl"])
+            features = joblib.load(paths["feature_names.pkl"])
+            return model, scaler, features, models_dir
+        except Exception as exc:
+            load_errors.append(f"  - {models_dir}: {exc}")
+
+    searched = "\n".join(f"  - {path}" for path in searched_dirs)
+    details = [
+        "Model artifacts could not be loaded.",
+        f"Searched:\n{searched}",
+    ]
+
+    if load_errors:
+        details.append("Load errors:\n" + "\n".join(load_errors))
+    else:
+        details.append("Expected files: " + ", ".join(ARTIFACT_FILENAMES))
+
+    details.append("Please ensure the trained model files are deployed with the API.")
+    raise ModelArtifactsError("\n".join(details))
+
+
+def get_model_status() -> dict:
+    try:
+        model, _, features, models_dir = _load_artifacts()
+        feature_list = list(features)
+        warnings = []
+
+        if len(feature_list) < 14:
+            warnings.append(
+                "Loaded model uses fewer features than the API schema accepts."
+            )
+
+        return {
+            "ready": True,
+            "artifact_dir": models_dir,
+            "model_used": type(model).__name__,
+            "feature_count": len(feature_list),
+            "feature_names": feature_list,
+            "warnings": warnings,
+        }
+    except ModelArtifactsError as exc:
+        return {
+            "ready": False,
+            "searched_dirs": _candidate_model_dirs(),
+            "error": str(exc),
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -118,7 +204,7 @@ def predict_yield(input_data: dict) -> dict:
             "crop"                  : str
         }
     """
-    model, scaler, features = _load_artifacts()
+    model, scaler, features, _ = _load_artifacts()
 
     # ── 1. Encode country and crop ────────────────────────────────────────────
     country = input_data.get("country", "")

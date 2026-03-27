@@ -10,9 +10,21 @@ from pydantic import BaseModel, Field
 from typing import Literal
 
 try:
-    from .predict import predict_yield, COUNTRY_ENCODING, CROP_ENCODING
+    from .predict import (
+        predict_yield,
+        get_model_status,
+        ModelArtifactsError,
+        COUNTRY_ENCODING,
+        CROP_ENCODING,
+    )
 except ImportError:
-    from predict import predict_yield, COUNTRY_ENCODING, CROP_ENCODING
+    from predict import (
+        predict_yield,
+        get_model_status,
+        ModelArtifactsError,
+        COUNTRY_ENCODING,
+        CROP_ENCODING,
+    )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # App setup
@@ -156,11 +168,25 @@ class RetrainResponse(APIModel):
 @app.get("/", tags=["Health"])
 def root():
     """Health check — confirms the API is running."""
+    model_status = get_model_status()
     return {
         "status":  "online",
         "message": "African Crop Yield Prediction API is running.",
         "docs":    "/docs",
+        "model_ready": model_status["ready"],
+        "artifact_dir": model_status.get("artifact_dir"),
+        "feature_count": model_status.get("feature_count"),
+        "warnings": model_status.get("warnings", []),
     }
+
+
+@app.get("/health", tags=["Health"])
+def health():
+    """Readiness check — returns 200 only when the model artifacts are loadable."""
+    model_status = get_model_status()
+    if not model_status["ready"]:
+        raise HTTPException(status_code=503, detail=model_status)
+    return model_status
 
 
 @app.post("/predict", response_model=PredictionResponse, tags=["Prediction"])
@@ -176,7 +202,7 @@ def predict(data: CropYieldInput):
     try:
         result = predict_yield(data.model_dump())
         return PredictionResponse(**result)
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ModelArtifactsError) as e:
         raise HTTPException(status_code=503, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

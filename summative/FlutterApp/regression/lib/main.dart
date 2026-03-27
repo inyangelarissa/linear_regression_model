@@ -44,8 +44,7 @@ class CropYieldApp extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           labelStyle: const TextStyle(color: Color(0xFF558B2F), fontSize: 13),
-          hintStyle:
-              const TextStyle(color: Color(0xFF9E9E9E), fontSize: 12),
+          hintStyle: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 12),
         ),
       ),
       home: const PredictionPage(),
@@ -54,23 +53,59 @@ class CropYieldApp extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// API base URL — replace with your Render URL when deployed
+// API URL — this may be either the API root or the Swagger docs URL.
 // ─────────────────────────────────────────────────────────────────────────────
-const String _apiBaseUrl = 'https://linearregressionmodel-production-548a.up.railway.app/docs';
+const String _apiBaseUrl =
+    'https://linearregressionmodel-production-548a.up.railway.app/docs';
+
+String _apiRootFrom(String url) {
+  final normalized = url.trim().replaceFirst(RegExp(r'/$'), '');
+  return normalized.endsWith('/docs')
+      ? normalized.substring(0, normalized.length - '/docs'.length)
+      : normalized;
+}
+
+Uri _apiUri(String path) {
+  final root = _apiRootFrom(_apiBaseUrl);
+  final cleanPath = path.startsWith('/') ? path : '/$path';
+  return Uri.parse('$root$cleanPath');
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data constants
 // ─────────────────────────────────────────────────────────────────────────────
 const List<String> _countries = [
-  'Angola', 'Burkina Faso', 'Cameroon', 'Ethiopia', 'Ghana',
-  'Guinea', 'Kenya', 'Malawi', 'Mali', 'Mozambique',
-  'Niger', 'Nigeria', 'Rwanda', 'Senegal', 'Tanzania',
-  'Uganda', 'Zambia', 'Zimbabwe',
+  'Angola',
+  'Burkina Faso',
+  'Cameroon',
+  'Ethiopia',
+  'Ghana',
+  'Guinea',
+  'Kenya',
+  'Malawi',
+  'Mali',
+  'Mozambique',
+  'Niger',
+  'Nigeria',
+  'Rwanda',
+  'Senegal',
+  'Tanzania',
+  'Uganda',
+  'Zambia',
+  'Zimbabwe',
 ];
 
 const List<String> _crops = [
-  'Beans', 'Cassava', 'Groundnuts', 'Maize', 'Millet',
-  'Plantains', 'Rice', 'Sorghum', 'Sweet potatoes', 'Yams',
+  'Beans',
+  'Cassava',
+  'Groundnuts',
+  'Maize',
+  'Millet',
+  'Plantains',
+  'Rice',
+  'Sorghum',
+  'Sweet potatoes',
+  'Yams',
 ];
 
 class PredictionPage extends StatefulWidget {
@@ -88,30 +123,39 @@ class _PredictionPageState extends State<PredictionPage> {
   String? _selectedCrop;
 
   // Text controllers — one per numeric field (12 fields)
-  final _yearCtrl               = TextEditingController();
-  final _rainfallCtrl           = TextEditingController();
-  final _tempCtrl               = TextEditingController();
-  final _humidityCtrl           = TextEditingController();
-  final _pesticidesCtrl         = TextEditingController();
-  final _fertilizerCtrl         = TextEditingController();
-  final _arableCtrl             = TextEditingController();
-  final _soilCtrl               = TextEditingController();
-  final _irrigationCtrl         = TextEditingController();
-  final _gdpCtrl                = TextEditingController();
-  final _ruralCtrl              = TextEditingController();
-  final _co2Ctrl                = TextEditingController();
+  final _yearCtrl = TextEditingController();
+  final _rainfallCtrl = TextEditingController();
+  final _tempCtrl = TextEditingController();
+  final _humidityCtrl = TextEditingController();
+  final _pesticidesCtrl = TextEditingController();
+  final _fertilizerCtrl = TextEditingController();
+  final _arableCtrl = TextEditingController();
+  final _soilCtrl = TextEditingController();
+  final _irrigationCtrl = TextEditingController();
+  final _gdpCtrl = TextEditingController();
+  final _ruralCtrl = TextEditingController();
+  final _co2Ctrl = TextEditingController();
 
   // State
-  bool    _isLoading  = false;
+  bool _isLoading = false;
   String? _resultText;
-  bool    _isError    = false;
+  bool _isError = false;
 
   @override
   void dispose() {
     for (final c in [
-      _yearCtrl, _rainfallCtrl, _tempCtrl, _humidityCtrl,
-      _pesticidesCtrl, _fertilizerCtrl, _arableCtrl, _soilCtrl,
-      _irrigationCtrl, _gdpCtrl, _ruralCtrl, _co2Ctrl,
+      _yearCtrl,
+      _rainfallCtrl,
+      _tempCtrl,
+      _humidityCtrl,
+      _pesticidesCtrl,
+      _fertilizerCtrl,
+      _arableCtrl,
+      _soilCtrl,
+      _irrigationCtrl,
+      _gdpCtrl,
+      _ruralCtrl,
+      _co2Ctrl,
     ]) {
       c.dispose();
     }
@@ -140,38 +184,38 @@ class _PredictionPageState extends State<PredictionPage> {
     if (!_formKey.currentState!.validate()) {
       setState(() {
         _resultText = 'Please fix the errors above before predicting.';
-        _isError    = true;
+        _isError = true;
       });
       return;
     }
 
     setState(() {
-      _isLoading  = true;
+      _isLoading = true;
       _resultText = null;
-      _isError    = false;
+      _isError = false;
     });
 
     final body = jsonEncode({
-      'country':                        _selectedCountry,
-      'crop':                           _selectedCrop,
-      'year':                           int.parse(_yearCtrl.text.trim()),
-      'average_rain_fall_mm_per_year':  double.parse(_rainfallCtrl.text.trim()),
-      'avg_temp':                       double.parse(_tempCtrl.text.trim()),
-      'humidity_pct':                   double.parse(_humidityCtrl.text.trim()),
-      'pesticides_tonnes':              double.parse(_pesticidesCtrl.text.trim()),
-      'fertilizer_kg_ha':               double.parse(_fertilizerCtrl.text.trim()),
-      'arable_land_pct':                double.parse(_arableCtrl.text.trim()),
-      'soil_quality_index':             double.parse(_soilCtrl.text.trim()),
-      'irrigation_coverage_pct':        double.parse(_irrigationCtrl.text.trim()),
-      'gdp_per_capita_usd':             double.parse(_gdpCtrl.text.trim()),
-      'rural_population_pct':           double.parse(_ruralCtrl.text.trim()),
-      'co2_emissions_metric_tons':      double.parse(_co2Ctrl.text.trim()),
+      'country': _selectedCountry,
+      'crop': _selectedCrop,
+      'year': int.parse(_yearCtrl.text.trim()),
+      'average_rain_fall_mm_per_year': double.parse(_rainfallCtrl.text.trim()),
+      'avg_temp': double.parse(_tempCtrl.text.trim()),
+      'humidity_pct': double.parse(_humidityCtrl.text.trim()),
+      'pesticides_tonnes': double.parse(_pesticidesCtrl.text.trim()),
+      'fertilizer_kg_ha': double.parse(_fertilizerCtrl.text.trim()),
+      'arable_land_pct': double.parse(_arableCtrl.text.trim()),
+      'soil_quality_index': double.parse(_soilCtrl.text.trim()),
+      'irrigation_coverage_pct': double.parse(_irrigationCtrl.text.trim()),
+      'gdp_per_capita_usd': double.parse(_gdpCtrl.text.trim()),
+      'rural_population_pct': double.parse(_ruralCtrl.text.trim()),
+      'co2_emissions_metric_tons': double.parse(_co2Ctrl.text.trim()),
     });
 
     try {
       final response = await http
           .post(
-            Uri.parse('$_apiBaseUrl/predict'),
+            _apiUri('/predict'),
             headers: {'Content-Type': 'application/json'},
             body: body,
           )
@@ -181,28 +225,27 @@ class _PredictionPageState extends State<PredictionPage> {
         final data = jsonDecode(response.body);
         final hgHa = data['predicted_yield_hg_ha'];
         final kgHa = data['predicted_yield_kg_ha'];
-        final tHa  = data['predicted_yield_t_ha'];
-        final mdl  = data['model_used'];
+        final tHa = data['predicted_yield_t_ha'];
+        final mdl = data['model_used'];
         setState(() {
-          _isError    = false;
-          _resultText =
-              '${data['country']} · ${data['crop']}\n\n'
+          _isError = false;
+          _resultText = '${data['country']} · ${data['crop']}\n\n'
               '${_fmt(hgHa)}  hg/ha\n'
               '${_fmt(kgHa)}  kg/ha\n'
               '${_fmt(tHa, decimals: 4)}  t/ha\n\n'
               'Model: $mdl';
         });
       } else {
-        final data  = jsonDecode(response.body);
+        final data = jsonDecode(response.body);
         final detail = data['detail'] ?? 'Unknown error';
         setState(() {
-          _isError    = true;
+          _isError = true;
           _resultText = 'Error ${response.statusCode}: $detail';
         });
       }
     } catch (e) {
       setState(() {
-        _isError    = true;
+        _isError = true;
         _resultText = 'Connection error: Could not reach the API.\n$e';
       });
     } finally {
@@ -259,9 +302,9 @@ class _PredictionPageState extends State<PredictionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
               // ── Section: Location & Crop ──────────────────────────────────
-              _sectionHeader('📍 Location & Crop', 'Select country and crop type'),
+              _sectionHeader(
+                  '📍 Location & Crop', 'Select country and crop type'),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -339,7 +382,8 @@ class _PredictionPageState extends State<PredictionPage> {
 
               // ── Section: Agricultural Inputs ──────────────────────────────
               const SizedBox(height: 20),
-              _sectionHeader('🚜 Agricultural Inputs', 'Farming resources applied'),
+              _sectionHeader(
+                  '🚜 Agricultural Inputs', 'Farming resources applied'),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -399,7 +443,8 @@ class _PredictionPageState extends State<PredictionPage> {
 
               // ── Section: Socioeconomic ────────────────────────────────────
               const SizedBox(height: 20),
-              _sectionHeader('📊 Socioeconomic Factors', 'Country-level indicators'),
+              _sectionHeader(
+                  '📊 Socioeconomic Factors', 'Country-level indicators'),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -512,7 +557,8 @@ class _PredictionPageState extends State<PredictionPage> {
     required String hint,
     required String suffix,
     required String? Function(String?) validator,
-    TextInputType keyboard = const TextInputType.numberWithOptions(decimal: true),
+    TextInputType keyboard =
+        const TextInputType.numberWithOptions(decimal: true),
     List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
@@ -565,9 +611,8 @@ class _DropdownField extends StatelessWidget {
       decoration: InputDecoration(labelText: label, hintText: hint),
       isExpanded: true,
       style: const TextStyle(fontSize: 13, color: Color(0xFF212121)),
-      items: items
-          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-          .toList(),
+      items:
+          items.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
       onChanged: onChanged,
       validator: validator,
     );
@@ -585,11 +630,12 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg     = isError ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9);
+    final bg = isError ? const Color(0xFFFFEBEE) : const Color(0xFFE8F5E9);
     final border = isError ? const Color(0xFFE53935) : const Color(0xFF2E7D32);
-    final icon   = isError ? Icons.error_outline_rounded
-                           : Icons.check_circle_outline_rounded;
-    final title  = isError ? 'Prediction Error' : 'Predicted Crop Yield';
+    final icon = isError
+        ? Icons.error_outline_rounded
+        : Icons.check_circle_outline_rounded;
+    final title = isError ? 'Prediction Error' : 'Predicted Crop Yield';
 
     // Parse yield lines for bold display (only when success)
     final lines = text.split('\n');
@@ -630,7 +676,8 @@ class _ResultCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           if (isError)
-            Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFFC62828)))
+            Text(text,
+                style: const TextStyle(fontSize: 13, color: Color(0xFFC62828)))
           else ...[
             // Country · Crop line
             if (lines.isNotEmpty)
@@ -644,7 +691,13 @@ class _ResultCard extends StatelessWidget {
               ),
             const SizedBox(height: 10),
             // Yield values
-            ...lines.skip(1).where((l) => l.contains('hg/ha') || l.contains('kg/ha') || l.contains('t/ha')).map(
+            ...lines
+                .skip(1)
+                .where((l) =>
+                    l.contains('hg/ha') ||
+                    l.contains('kg/ha') ||
+                    l.contains('t/ha'))
+                .map(
               (line) {
                 final parts = line.trim().split('  ');
                 return Padding(
@@ -675,14 +728,14 @@ class _ResultCard extends StatelessWidget {
             ),
             // Model line
             ...lines.where((l) => l.startsWith('Model:')).map(
-              (line) => Text(
-                line,
-                style: const TextStyle(
-                  fontSize: 11.5,
-                  color: Color(0xFF757575),
+                  (line) => Text(
+                    line,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: Color(0xFF757575),
+                    ),
+                  ),
                 ),
-              ),
-            ),
           ],
         ],
       ),
