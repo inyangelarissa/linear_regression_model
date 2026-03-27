@@ -182,11 +182,8 @@ def root():
 
 @app.get("/health", tags=["Health"])
 def health():
-    """Readiness check — returns 200 only when the model artifacts are loadable."""
-    model_status = get_model_status()
-    if not model_status["ready"]:
-        raise HTTPException(status_code=503, detail=model_status)
-    return model_status
+    """Liveness check — returns 200 as long as the API process is running."""
+    return {"status": "ok"}
 
 
 @app.post("/predict", response_model=PredictionResponse, tags=["Prediction"])
