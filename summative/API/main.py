@@ -44,12 +44,15 @@ app = FastAPI(
 # ─────────────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # Allow all origins (restrict in production)
+    allow_origins=[
+        "http://localhost",
+        "http://localhost:8000",
+        "http://linearregressionmodel-production-548a.up.railway.app/docs",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],        # Allow GET, POST, OPTIONS, etc.
-    allow_headers=["*"],        # Allow all headers
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept"],
 )
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Pydantic input model — enforced types + realistic range constraints
 # ─────────────────────────────────────────────────────────────────────────────
