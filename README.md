@@ -65,29 +65,29 @@ jupyter notebook summative/linear_regression/multivariate.ipynb
 ```
 ## Step-by-Step: Run the App
 
-# Step 1: Clone the repository
+### Step 1: Clone the repository
 
 Open a terminal and run:
 
 git clone https://github.com/YOUR_USERNAME/linear_regression_model.git
 cd linear_regression_model
 
-# Step 2: Navigate to the Flutter app folder
+### Step 2: Navigate to the Flutter app folder
 
 cd summative/FlutterApp
 
-# Step 3: Install dependencies
+### Step 3: Install dependencies
 
 flutter pub get
 
-# Step 4: Start the Android emulator
+### Step 4: Start the Android emulator
 
 Open Android Studio
 Click Virtual Device Manager (top right toolbar)
 Press the Play ▶ button next to your device
 Wait for the emulator to fully boot (shows the home screen)
 
-# Step 5: Run the app
+### Step 5: Run the app
 
 In the terminal (still inside summative/FlutterApp), run:
 
