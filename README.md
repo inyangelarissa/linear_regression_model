@@ -14,6 +14,10 @@ My mission is to transform agriculture through innovation, sustainability, and e
 **Link:** https://youtu.be/wp0EIE0TyZk
 
 
+## API endpoint
+**Link:** http://linearregressionmodel-production-548a.up.railway.app/docs
+
+
 ---
 
 ## Repository Structure
